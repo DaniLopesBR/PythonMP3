@@ -89,12 +89,15 @@ def listar_musicas(caminho):
     ]
 
 def buscar_musicas(event=None):
-    global resultados, resultados_filtrados
+    global resultados_filtrados
     termo_busca = search_entry.get().lower()  # Obter o texto da barra de pesquisa e converter para minúsculas
     resultados_filtrados = [musica for musica in resultados if termo_busca in musica.lower()]  # Filtrar as músicas com base no termo de busca
     listbox.delete(0, tk.END)  # Limpar a lista atual de músicas
     for musica in resultados_filtrados:
         listbox.insert(tk.END, os.path.basename(musica))  # Adicionar as músicas filtradas à lista
+    listbox.bind("<Double-Button-1>", lambda event: play_selected_wrapper(current_song_label))  # Chamar a função play_selected_wrapper ao clicar duas vezes em um item da lista
+    listbox.bind("<Return>", lambda event: play_selected_wrapper(current_song_label))  # Chamar a função play_selected_wrapper quando a tecla Enter for pressionada na lista
+
       
 # Função para selecionar uma pasta contendo músicas
 def selecionar_musica(listbox):
