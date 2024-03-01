@@ -16,7 +16,7 @@ def reproduzir_musica(musica, current_song_label):
     current_song_label.insert("1.0", os.path.basename(musica))  # Insere o novo nome da música no rótulo
 
     # Rolar para o início do texto para simular o efeito de rolagem automática
-    current_song_label.see("1.0")
+    current_song_label.see("1.0", os.path.basename(musica))
 
 # Função para iniciar a rolagem automática do nome da música
 def iniciar_rolagem_automatica():
@@ -84,9 +84,17 @@ def listar_musicas(caminho):
         os.path.join(caminho, arquivo)
         for caminho, _, arquivos in os.walk(caminho)
         for arquivo in arquivos
-        if arquivo.endswith(('.mp3', '.m4a', '.wav'))
+        if arquivo.endswith(('.mp3'))
     ]
 
+def buscar_musicas(event=None):
+    global resultados
+    termo_busca = search_entry.get().lower()  # Obter o texto da barra de pesquisa e converter para minúsculas
+    resultados_filtrados = [musica for musica in resultados if termo_busca in musica.lower()]  # Filtrar as músicas com base no termo de busca
+    listbox.delete(0, tk.END)  # Limpar a lista atual de músicas
+    for musica in resultados_filtrados:
+        listbox.insert(tk.END, os.path.basename(musica))  # Adicionar as músicas filtradas à lista
+      
 # Função para selecionar uma pasta contendo músicas
 def selecionar_musica(listbox):
     global resultados
@@ -171,11 +179,19 @@ def main():
 
     root = tk.Tk()  # Cria uma instância de Tk para a interface gráfica
     root.title("Music Player - MK II")  # Define o título da janela
-    root.geometry("210x355")  # Define as dimensões da janela
+    root.geometry("305x400")  # Define as dimensões da janela
+
+    #Barra de pesquisa
+    global search_entry
+    search_entry = tk.Entry(root)
+    search_entry.grid(row=1, column=0, columnspan=5, padx=5, pady=5, sticky="ew")  # Posicionar a barra de pesquisa acima da lista de músicas
+    search_button = tk.Button(root, text="Buscar", command=buscar_musicas)  # Botão para iniciar a busca
+    search_button.grid(row=1, column=5, padx=5, pady=5)  # Posicionar o botão ao lado da barra de pesquisa
+    search_entry.bind("<Return>", buscar_musicas)# Associar a função buscar_musicas ao evento de pressionar a tecla Enter no campo de entrada
 
     # Cria um rótulo para exibir a música atual
     current_song_label = Text(root, height=1, width=20, bg="#b2dafb", fg="#000000", wrap="none")
-    current_song_label.grid(row=0, column=0, columnspan=5)  # Define a posição do rótulo na interface
+    current_song_label.grid(row=0, column=0, columnspan=6, sticky='ew')  # Define a posição do rótulo na interface
     
     iniciar_rolagem_automatica()  # Inicia a rolagem automática do nome da música
 
@@ -189,7 +205,7 @@ def main():
 
     global listbox
     listbox = tk.Listbox(root)  # Cria uma lista para exibir as músicas disponíveis
-    listbox.grid(row=1, column=0, columnspan=4, rowspan=5, padx=5, pady=5, sticky='ns')  # Define a posição da lista na interface
+    listbox.grid(row=2, column=0, columnspan=7, rowspan=6, padx=5, pady=5, sticky='ew')  # Define a posição da lista na interface
 
     # Se houver uma pasta de música selecionada anteriormente, lista as músicas
     if pasta_musica:
@@ -204,7 +220,6 @@ def main():
     continue_icon = ImageTk.PhotoImage(Image.open("continue.png"))
     previous_icon = ImageTk.PhotoImage(Image.open("previous.png"))
     next_icon = ImageTk.PhotoImage(Image.open("next.png"))
-    volume_icon = ImageTk.PhotoImage(Image.open("volume.png"))
     stop_icon = ImageTk.PhotoImage(Image.open("stop.png"))
     repeat_icon = ImageTk.PhotoImage(Image.open("repeat.png"))
     random_icon = ImageTk.PhotoImage(Image.open("shuffle.png"))
@@ -214,7 +229,6 @@ def main():
     button_folder = tk.Button(root, image=folder_icon, command=lambda: selecionar_musica(listbox), bg="#b2dafb", fg="#000000")
     button_play = tk.Button(root, image=play_icon, command=lambda: play_selected_wrapper(current_song_label), bg="#b2dafb", fg="#000000")
     button_pause_play = tk.Button(root, text="Pausar", image=pause_icon, command=alternar_reproducao, bg="#b2dafb", fg="#000000")
-    button_stop = tk.Button(root, image=stop_icon, command=parar_reproducao, bg="#b2dafb", fg="#000000")
     button_previous = tk.Button(root, image=previous_icon, command=lambda: play_previous(current_song_label), bg="#b2dafb", fg="#000000")
     button_next = tk.Button(root, image=next_icon, command=lambda: play_next(current_song_label), bg="#b2dafb", fg="#000000")
     button_repeat = tk.Button(root, image=repeat_icon, command=repetir_musica, bg="#b2dafb", fg="#000000")
@@ -226,20 +240,20 @@ def main():
     volume_slider.set(50)  # Define o valor inicial do volume
 
     # Posicionar os botões na interface
-    button_folder.grid(row=9, column=1)  # Botão para selecionar a pasta de músicas
-    button_pause_play.grid(row=8, column=2)  # Botão para pausar ou retomar a reprodução da música atual
-    button_previous.grid(row=8, column=1)  # Botão para reproduzir a música anterior na lista
-    button_play.grid(row=7, column=2)  # Botão para reproduzir a música selecionada na lista
-    button_next.grid(row=8, column=3)  # Botão para reproduzir a próxima música na lista
-    button_folder.grid(row=9, column=2)  # Botão para selecionar a pasta de músicas
-    button_repeat.grid(row=7, column=4)  # Botão para repetir a música atual
-    button_repeat_all.grid(row=8, column=4)  # Botão para repetir todas as músicas
-    button_random.grid(row=9, column=4)  # Botão para reprodução aleatória
-    volume_slider.grid(row=1, column=4, rowspan=5, padx=5, pady=5)  # Slider para ajustar o volume
+    button_folder.grid(row=13, column=1)  # Botão para selecionar a pasta de músicas
+    button_pause_play.grid(row=12, column=2)  # Botão para pausar ou retomar a reprodução da música atual
+    button_previous.grid(row=12, column=1)  # Botão para reproduzir a música anterior na lista
+    button_play.grid(row=11, column=2)  # Botão para reproduzir a música selecionada na lista
+    button_next.grid(row=12, column=3)  # Botão para reproduzir a próxima música na lista
+    button_folder.grid(row=13, column=2)  # Botão para selecionar a pasta de músicas
+    button_repeat.grid(row=11, column=4)  # Botão para repetir a música atual
+    button_repeat_all.grid(row=12, column=4)  # Botão para repetir todas as músicas
+    button_random.grid(row=13, column=4)  # Botão para reprodução aleatória
+    volume_slider.grid(row=10, column=5, rowspan=5, padx=5, pady=5)  # Slider para ajustar o volume
 
     # Criar e posicionar um rótulo de rodapé
-    footer_label = tk.Label(root, text="Feito por Danilo Lopes, Aluno da UDF. \n Proof of Concept", bg="#b2dafb", fg="#000000")
-    footer_label.grid(row=11, column=0, columnspan=5)
+    footer_label = tk.Label(root, text="Feito por Danilo Lopes, Aluno da UDF. Proof of Concept", bg="#b2dafb", fg="#000000")
+    footer_label.grid(row=14, column=0, rowspan= 15, columnspan=6)
 
     root.mainloop()  # Iniciar o loop principal da interface gráfica
 
