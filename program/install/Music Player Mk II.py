@@ -16,7 +16,7 @@ def reproduzir_musica(musica, current_song_label):
     current_song_label.insert("1.0", os.path.basename(musica))  # Insere o novo nome da música no rótulo
 
     # Rolar para o início do texto para simular o efeito de rolagem automática
-    current_song_label.see("1.0", os.path.basename(musica))
+    current_song_label.see("1.0")
 
 # Função para iniciar a rolagem automática do nome da música
 def iniciar_rolagem_automatica():
@@ -42,19 +42,20 @@ def alternar_reproducao():
         continuar_reproducao()
         button_pause_play.config(text="Pausar", image=pause_icon)
 
-# Função para reproduzir a música selecionada a partir da lista
-def play_selected(resultados, current_song_label):
+def play_selected(resultados_filtrados, current_song_label):
     global listbox, musica_atual
     selected_index = listbox.curselection()  # Obtém o índice da música selecionada na lista
     if selected_index:
         musica_atual = selected_index[0]  # Atualiza a variável de controle da música atual
-        selecionado = resultados[musica_atual]  # Obtém o caminho da música selecionada
+        selecionado = resultados_filtrados[musica_atual]  # Obtém o caminho da música selecionada
         reproduzir_musica(selecionado, current_song_label)  # Chama a função para reproduzir a música
 
 # Função de wrapper para reproduzir a música selecionada
 def play_selected_wrapper(current_song_label):
-    global resultados
-    play_selected(resultados, current_song_label)
+    global resultados_filtrados
+    play_selected(resultados_filtrados, current_song_label)
+
+
 
 # Função para reproduzir a música anterior na lista
 def play_previous(current_song_label):
@@ -88,7 +89,7 @@ def listar_musicas(caminho):
     ]
 
 def buscar_musicas(event=None):
-    global resultados
+    global resultados, resultados_filtrados
     termo_busca = search_entry.get().lower()  # Obter o texto da barra de pesquisa e converter para minúsculas
     resultados_filtrados = [musica for musica in resultados if termo_busca in musica.lower()]  # Filtrar as músicas com base no termo de busca
     listbox.delete(0, tk.END)  # Limpar a lista atual de músicas
