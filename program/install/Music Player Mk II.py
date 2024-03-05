@@ -6,11 +6,13 @@ from PIL import ImageTk, Image
 from tkinter import filedialog, Text, messagebox, ttk, Menu
 import json
 import random
-from functools import partial
 
 resultados = []  
 resultados_originais = []  # Adicionando a lista original de resultados
 resultados_filtrados = []  # Adicionando a lista filtrada de resultados
+
+repetir_ativo = False
+aleatorio_ativo = False
 
 def reproduzir_musica(musica=None):
     global musica_atual, current_song_label
@@ -132,16 +134,20 @@ def salvar_configuracao(pasta_musica):
         json.dump(config, f)
 
 def repetir_musica():
-    global musica_atual
+    global musica_atual, repetir_ativo
     pygame.mixer.music.play(-1, start=pygame.mixer.music.get_pos() / 1000)
     musica_atual = resultados.index(resultados[musica_atual])
+    repetir_ativo = True
+    button_repeat.config(bg="#31ff02")  # Mudança de cor para verde quando ativado
 
 def repetir_todas(root):
-    global musica_atual, resultados
+    global musica_atual, resultados, repetir_ativo
     pygame.mixer.music.set_endevent(pygame.USEREVENT)
     pygame.mixer.music.play()
     root.after(100, lambda: check_music_status(root))
     pygame.mixer.music.queue(resultados[(musica_atual + 1) % len(resultados)])
+    repetir_ativo = True
+    button_repeat_all.config(bg="#31ff02")  # Mudança de cor para verde quando ativado
 
 def check_music_status(root):
     global musica_atual, resultados
@@ -160,14 +166,17 @@ def on_music_end():
     reproduzir_musica()
 
 def reproducao_aleatoria():
-    global musica_atual
+    global musica_atual, aleatorio_ativo
     musica_aleatoria = random.choice(resultados)
     musica_atual = resultados.index(musica_aleatoria)
     reproduzir_musica(musica_aleatoria)
+    aleatorio_ativo = True
+    button_random.config(bg="#31ff02")  # Mudança de cor para verde quando ativado
 
 def main():
-    global current_song_label
-    global play_icon, pause_icon, button_pause_play, continue_icon, stop_icon
+    global current_song_label, play_icon, pause_icon, button_pause_play, continue_icon, stop_icon, \
+        folder_icon, button_folder, button_play, button_previous, button_next, button_repeat, \
+        button_repeat_all, button_random, volume_slider, listbox, search_var, search_entry
 
     pygame.mixer.init()
 
